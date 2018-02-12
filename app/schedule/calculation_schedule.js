@@ -46,32 +46,25 @@ class Calculation extends Subscription {
 					// });
 
 
-					const { exec, spawn } = require('child_process');
+					const { spawn } = require('child_process');
 
-					exec('cd ~/nodejs/src', (error, stdout, stderr) => {
-						if (error) {
-							console.error(`exec error: ${error}`);
-							return;
-						}
-						
-						const py = spawn('python', [`ca_all_moltox.py`]);
+					const py = spawn('python', [`../src/ca_all_moltox.py`]);
 
-						const data = [], dataString = '';
-						data.push("CN(C)CCCN1C2=CC=CC=C2SC2=C1C=C(C=C2)C(C)=O", "0.1");
-						py.stdout.on('data', function (data) {
-							dataString += data.toString();
-						});
+					const data = [], dataString = '';
+					data.push("CN(C)CCCN1C2=CC=CC=C2SC2=C1C=C(C=C2)C(C)=O", "0.1");
+					py.stdout.on('data', function (data) {
+						dataString += data.toString();
+					});
 
-						py.stdout.on('end', function () {
-							// var json = JSON.parse(dataString.replace(/\\/g, '').replace(/\"\[/g, '[').replace(/\]\"/g, ']'));
-							console.log(dataString)
-						});
+					py.stdout.on('end', function () {
+						// var json = JSON.parse(dataString.replace(/\\/g, '').replace(/\"\[/g, '[').replace(/\]\"/g, ']'));
+						console.log(dataString)
+					});
 
-						py.on('error', function (err) {
-							console.log(new Date());
-							console.log('开启失败', err);
-							process.exit();
-						});
+					py.on('error', function (err) {
+						console.log(new Date());
+						console.log('开启失败', err);
+						process.exit();
 					});
 
 				}
