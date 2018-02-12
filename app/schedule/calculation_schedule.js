@@ -30,18 +30,37 @@ class Calculation extends Subscription {
 				}
 				if (!isRunning) { // python计算的加锁条件, 调用python程序直接计算。
 					console.log('debug')
-					
-					const calTypePy = parameters.calSort ? `ca_${parameters.calSort}_${parameters.calType}_sql.py` : `ca_${parameters.calType}_sql.py`
-					const { spawn } = require('child_process');
-					const data = [];
-					data.push(orderId);
-					
-					const py = spawn('python', [calTypePy]);
-					py.stdin.write(JSON.stringify(data));
-					py.stdin.end();
+
+					// const calTypePy = parameters.calSort ? `ca_${parameters.calSort}_${parameters.calType}_sql.py` : `ca_${parameters.calType}_sql.py`
+					// const { spawn } = require('child_process');
+					// const data = [];
+					// data.push(orderId);
+
+					// const py = spawn('python', [calTypePy]);
+					// py.stdin.write(JSON.stringify(data));
+					// py.stdin.end();
+					// py.on('error', function (err) {
+					// 	console.log('error');
+					// 	// logger.error(`orderId:${orderId},userid:${userid},status:${status} 调用python失败 => ${err}`);
+					// 	process.exit();
+					// });
+
+					const { spawn } = require('child_process'), py = spawn('python', [`ca_all_moltox.py`]);
+
+        	const data = [], dataString = '';
+					data.push("CN(C)CCCN1C2=CC=CC=C2SC2=C1C=C(C=C2)C(C)=O", "0.1");
+					py.stdout.on('data', function (data) {
+						dataString += data.toString();
+					});
+
+					py.stdout.on('end', function () {
+						var json = JSON.parse(dataString.replace(/\\/g, '').replace(/\"\[/g, '[').replace(/\]\"/g, ']'));
+						console.log(json)
+					});
+
 					py.on('error', function (err) {
-						console.log('error');
-						// logger.error(`orderId:${orderId},userid:${userid},status:${status} 调用python失败 => ${err}`);
+						console.log(new Date());
+						console.log('开启失败', err);
 						process.exit();
 					});
 				}
