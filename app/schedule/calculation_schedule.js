@@ -67,6 +67,9 @@ class Calculation extends Subscription {
 						process.exit();
 					});
 
+					py.stdin.write(JSON.stringify(data));
+      				py.stdin.end();
+
 				}
 			});
 		}
