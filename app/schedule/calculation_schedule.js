@@ -13,7 +13,7 @@ class Calculation extends Subscription {
 	async subscribe() {
 		const inOneDay = new Date().getTime() - 24 * 3600 * 1000;
 
-		const queueOrders = await this.ctx.app.mysql.query('SELECT id_, parameters FROM xundrug_order WHERE status=? AND createTime>? ORDER BY createTime ASC', ['9', inOneDay]);
+		const queueOrders = await this.ctx.app.mysql.query('SELECT id_, parameters FROM xundrug_order WHERE status=? AND createTime>? ORDER BY createTime ASC', ['1', inOneDay]);
 
 		if (queueOrders.length > 0) {
 			const orderId = queueOrders[0].id_;
@@ -29,47 +29,16 @@ class Calculation extends Subscription {
 					isRunning = stdout && stdout < 1;
 				}
 				if (!isRunning) { // python计算的加锁条件, 调用python程序直接计算。
-					console.log('debug')
 
-					// const calTypePy = parameters.calSort ? `ca_${parameters.calSort}_${parameters.calType}_sql.py` : `ca_${parameters.calType}_sql.py`
-					// const { spawn } = require('child_process');
-					// const data = [];
-					// data.push(orderId);
+					const calTypePy = `${python_path}/ca_manager.py`; // req.body.runType ? `${python_path}/ca_${req.body.runType}_${routeName}_sql.py` : `${python_path}/ca_${routeName}_sql.py`
+        	const { spawn } = require('child_process');
 
-					// const py = spawn('python', [calTypePy]);
-					// py.stdin.write(JSON.stringify(data));
-					// py.stdin.end();
-					// py.on('error', function (err) {
-					// 	console.log('error');
-					// 	// logger.error(`orderId:${orderId},userid:${userid},status:${status} 调用python失败 => ${err}`);
-					// 	process.exit();
-					// });
-
-
-					const { spawn } = require('child_process');
-
-					const py = spawn('python', [`../src/ca_all_moltox.py`]);
-
-					const data = [], dataString = '';
-					data.push("CN(C)CCCN1C2=CC=CC=C2SC2=C1C=C(C=C2)C(C)=O", "0.1");
-					py.stdout.on('data', function (data) {
-						dataString += data.toString();
-					});
-
-					py.stdout.on('end', function () {
-						// var json = JSON.parse(dataString.replace(/\\/g, '').replace(/\"\[/g, '[').replace(/\]\"/g, ']'));
-						console.log(dataString)
-					});
-
+					const py = spawn('python', [calTypePy, orderId]);
 					py.on('error', function (err) {
-						console.log(new Date());
-						console.log('开启失败', err);
+						console.log('error');
+						// logger.error(`orderId:${orderId},userid:${userid},status:${status} 调用python失败 => ${err}`);
 						process.exit();
 					});
-
-					py.stdin.write(JSON.stringify(data));
-      				py.stdin.end();
-
 				}
 			});
 		}
