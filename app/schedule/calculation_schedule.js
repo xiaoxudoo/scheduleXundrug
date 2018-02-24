@@ -30,7 +30,7 @@ class Calculation extends Subscription {
 				}
 				if (!isRunning) { // python计算的加锁条件, 调用python程序直接计算。
 
-					const calTypePy = `${python_path}/ca_manager.py`; // req.body.runType ? `${python_path}/ca_${req.body.runType}_${routeName}_sql.py` : `${python_path}/ca_${routeName}_sql.py`
+					const calTypePy = `../src/xundrug_python/ca_manager.py`; // req.body.runType ? `${python_path}/ca_${req.body.runType}_${routeName}_sql.py` : `${python_path}/ca_${routeName}_sql.py`
         	const { spawn } = require('child_process');
 
 					const py = spawn('python', [calTypePy, orderId]);
